@@ -108,3 +108,7 @@ Once started, a Storm topology runs until stopped (killed.) To stop the topology
 ##More information
 
 For more information on how Python components are used in a Storm topology, see [Develop Storm topologies using Python](https://azure.microsoft.com/en-us/documentation/articles/hdinsight-storm-develop-python-topology/).
+
+## Project code of conduct
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
