@@ -1,0 +1,73 @@
+# topology definition
+
+# name to be used when submitting. This is what shows up...
+# in the Storm UI/storm command-line tool as the topology name
+# when submitted to Storm
+name: "wordcount"
+
+# Topology configuration
+config:
+  # Hint for the number of workers to create
+  topology.workers: 1
+
+# Spout definitions
+spouts:
+  - id: "sentence-spout"
+    className: "org.apache.storm.flux.wrappers.spouts.FluxShellSpout"
+    constructorArgs:
+      # Command line
+      - ["python", "sentencespout.py"]
+      # Output field(s)
+      - ["sentence"]
+    # parallelism hint
+    parallelism: 1
+
+# Bolt definitions
+bolts:
+  - id: "splitter-bolt"
+    className: "org.apache.storm.flux.wrappers.bolts.FluxShellBolt"
+    constructorArgs:
+      # Command line
+      - ["python", "splitbolt.py"]
+      # Output field(s)
+      - ["word"]
+    parallelism: 1
+
+  - id: "counter-bolt"
+    className: "org.apache.storm.flux.wrappers.bolts.FluxShellBolt"
+    constructorArgs:
+      # Command line
+      - ["python", "countbolt.py"]
+      # Output field(s)
+      - ["word","count"]
+    parallelism: 1
+
+  # Logging
+  - id: "log"
+    className: "org.apache.storm.flux.wrappers.bolts.LogInfoBolt"
+    parallelism: 1
+
+# Stream definitions
+streams:
+  - name: "Spout --> Splitter" # name isn't used (placeholder for logging, UI, etc.)
+    # The stream emitter
+    from: "sentence-spout"
+    # The stream consumer
+    to: "splitter-bolt"
+    # Grouping type
+    grouping:
+      type: SHUFFLE
+
+  - name: "Splitter -> Counter"
+    from: "splitter-bolt"
+    to: "counter-bolt"
+    grouping:
+      type: FIELDS
+      # field(s) to group on
+      args: ["word"]
+
+  - name: "Counter -> Log"
+    from: "counter-bolt"
+    to: "log"
+    grouping:
+      type: SHUFFLE

@@ -11,11 +11,12 @@ class SplitBolt(storm.BasicBolt):
 
     def process(self, tup):
         # Split the inbound sentence at spaces
-        words = tup.values[0].split(" ")
+        words = tup.values[0].split()
+        storm.logInfo("received %s" % words)
         # Loop over words and emit
         for word in words:
-          storm.logInfo("Emitting %s" % word)
-          storm.emit([word])
+            storm.logInfo("Emitting %s" % word)
+            storm.emit(word)
 
 # Start the bolt when it's invoked
 SplitBolt().run()

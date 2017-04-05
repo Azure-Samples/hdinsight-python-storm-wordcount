@@ -1,0 +1,128 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.microsoft.example</groupId>
+    <artifactId>WordCount</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>WordCount</name>
+    <url>http://maven.apache.org</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--
+        Storm 1.0.1 is for HDInsight 3.5.
+        To find the version information for earlier HDInsight cluster
+        versions, see https://azure.microsoft.com/en-us/documentation/articles/hdinsight-component-versioning/
+        -->
+        <storm.version>1.0.1</storm.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>storm-core</artifactId>
+            <version>${storm.version}</version>
+            <!-- keep storm out of the jar-with-dependencies -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>flux-core</artifactId>
+            <version>${storm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>flux-wrappers</artifactId>
+            <version>${storm.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <!-- build an uber jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <transformers>
+                        <!-- Keep us from getting a can't overwrite file error -->
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                        <!-- We're using Flux, so refer to it as main -->
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>org.apache.storm.flux.Flux</mainClass>
+                        </transformer>
+                    </transformers>
+                    <!-- Keep us from getting a bad signature error -->
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- This allows us to use `mvn exec:java` to run the topology in development -->
+            <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/exec-maven-plugin -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                    <goals>
+                    <goal>exec</goal>
+                    </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <includeProjectDependencies>true</includeProjectDependencies>
+                    <includePluginDependencies>false</includePluginDependencies>
+                    <classpathScope>compile</classpathScope>
+                    <!-- Set mainClass as Flux, since we are using that -->
+                    <mainClass>org.apache.storm.flux.Flux</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>${basedir}/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <!--
+                    Include configuration for Log4j
+                    to reduce the clutter in log output
+                    -->
+                    <include>log4j2.xml</include>
+                    <!-- topology definition -->
+                    <include>topology.yaml</include>
+                </includes>
+            </resource>
+            <!-- include the Python components -->
+            <resource>
+                <directory>${basedir}/multilang</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+</project>
