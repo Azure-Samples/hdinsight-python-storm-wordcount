@@ -9,7 +9,7 @@ How to use Python components in an Apache Storm topology on HDInsight
 
 This topology uses the Flux framework to define a Storm topology using YAML. The components (spout and bolts) that process the data are written in Python.
 
-This example has been tested with HDInsight 3.5 (Storm 1.0.1).
+This example has been tested with HDInsight 3.6 (Storm 1.1.0).
 
 ## Prerequisites
 
