@@ -9,11 +9,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--
-        Storm 1.0.1 is for HDInsight 3.5.
+        Storm 1.0.1 is for HDInsight 3.6.
         To find the version information for earlier HDInsight cluster
         versions, see https://azure.microsoft.com/en-us/documentation/articles/hdinsight-component-versioning/
         -->
-        <storm.version>1.0.1</storm.version>
+        <storm.version>1.1.0</storm.version>
     </properties>
     <dependencies>
         <dependency>
